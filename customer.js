@@ -89,14 +89,20 @@ function customerPortal() {
             },
             filter: Number
         }]).then(answer => {
-            var prodSold = products.indexOf(answer.productSold);
-            console.log(`${answer.productSold}`);
-            console.log(`${prodSold}`);
-            console.log(`${products[1].name}`);
+            Array.prototype.getIndexBy = function (name, value) {
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i][name] == value) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+            var prodIndex = products[products.getIndexBy("name", answer.productSold)].index
+            console.log(`${products[prodIndex].name}`);
             inquirer.prompt({
                     name: "confirmed",
                     type: "confirm",
-                    message: `Your order of ${answer.productQuantity}x ${answer.productSold} has been placed! Would you like to make another purchase?`
+                    message: `Your order of ${answer.productQuantity}x ${products[prodIndex].name} has been placed! Would you like to make another purchase?`
                 })
                 .then(buyAgain => {
                     if (buyAgain.confirmed) {
