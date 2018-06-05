@@ -1,134 +1,149 @@
-const mysql = require("mysql");
-const inquirer = require("inquirer");
-const Table = require('cli-table');
-
+const mysql = require(`mysql`);
+const inquirer = require(`inquirer`);
 const connection = mysql.createConnection({
-    host: "localhost",
+    host: `localhost`,
     port: 3306,
-    user: "root",
-    password: "root",
-    database: "bamazon"
+    user: `root`,
+    password: `root`,
+    database: `bamazon`
 });
-
 connection.connect(err => {
     if (err) throw err;
-    userPrompt();
+    deptPrompt();
 });
+var productList = [];
+console.log(`Welcome Shopper!\n`);
 
-var table = new Table({
-    head: ['Department ID', 'Department Name', 'Overhead Cost', 'Product Sales', 'Total Profit']
-    // colWidths: [100, 200]
-});
-
-var userPrompt = () => {
-    inquirer.prompt({
-            name: "selectUser",
-            type: "list",
-            message: "Select your access type?",
+var deptPrompt = () => {
+    inquirer
+        .prompt([{
+            name: `department`,
+            message: `Which Department would you like to shop in?`,
+            type: `list`,
             choices: [
-                "Customer",
-                "Manager",
-                "Supervisor",
-                "Exit Application"
+                `Books`,
+                `Electronics`,
+                `Movies & Video`,
+                `Home & Garden`,
+                `Apparel`,
+                new inquirer.Separator(),
+                `I changed my mind, I don't wish to purchase anything.`
             ]
-        })
-        .then(user => {
-            switch (user.selectUser) {
-                case "Customer":
-                    console.log("You've selected Customer");
-                    customerPortal();
+        }])
+        .then(selected => {
+            switch (selected.department) {
+                case `Books`:
+                    getProducts(selected.department);
                     break;
-                case "Manager":
-                    console.log("You've selected Manager");
-                    multiSearch();
+                case `Electronics`:
+                    getProducts(selected.department);
                     break;
-                case "Supervisor":
-                    console.log("You've selected Supervisor");
-                    rangeSearch();
+                case `Movies & Video`:
+                    getProducts(selected.department);
                     break;
-                case "Exit":
-                    console.log("You've selected Exit");
+                case `Home & Garden`:
+                    getProducts(selected.department);
+                    break;
+                case `Apparel`:
+                    getProducts(selected.department);
+                    break;
+                case `I changed my mind, I don't want to purchase anything.`:
+                    console.log(`Thank you for shopping at Bamazon!`);
                     connection.end();
                     break;
                 default:
-                    console.log("Thank you for shopping at Bamazon!");
+                    console.log(`Thank you for shopping at Bamazon!`);
                     connection.end();
                     break;
             }
         });
 }
 
-function customerPortal() {
-    var query = "SELECT * FROM products";
-    var products = [];
-    var purchaseQty = 1;
-    connection.query(query, (err, res) => {
+var getProducts = deptName => {
+    connection.query(`Select * From products Where department_name=?`, [deptName], (err, res) => {
         for (var i = 0; i < res.length; i++) {
-            var newProd = {
-                id: res[i].product_id,
-                name: res[i].product_name,
-                cost: res[i].price,
-                category: res[i].department_name,
-                index: i
-            }
-            products.push(newProd);
+            var output = res[i].product_name + `; Price:$` + res[i].price;
+            productList.push(output);
         }
-        inquirer.prompt([{
-            name: "productSold",
-            type: "list",
-            message: "Select a product you'd like to purchase:",
-            choices: products
-        }, {
-            name: "productQuantity",
-            type: "input",
-            message: "How many would you like to purchase?",
-            default: 1,
-            validate: function (value) {
-                var valid = !isNaN(parseFloat(value));
-                return valid || 'Please enter a number';
-            },
-            filter: Number
-        }]).then(answer => {
-            Array.prototype.getIndexBy = function (name, value) {
-                for (var i = 0; i < this.length; i++) {
-                    if (this[i][name] == value) {
-                        return i;
-                    }
+        inquirer
+            .prompt([{
+                    name: `product`,
+                    message: `What would you like to buy?`,
+                    type: `list`,
+                    choices: productList
+                },
+                {
+                    name: `quantity`,
+                    message: `How many would you like to purchase?`,
+                    validate: value => {
+                        if (isNaN(value)) {
+                            return false;
+                        }
+                        return true;
+                    },
+                    filter: Number
                 }
-                return -1;
-            }
-            var prodIndex = products[products.getIndexBy("name", answer.productSold)].index
-            console.log(`${products[prodIndex].name}`);
-            inquirer.prompt({
-                    name: "confirmed",
-                    type: "confirm",
-                    message: `Your order of ${answer.productQuantity}x ${products[prodIndex].name} has been placed! Would you like to make another purchase?`
-                })
-                .then(buyAgain => {
-                    if (buyAgain.confirmed) {
-                        customerPortal();
-                    } else {
-                        userPrompt();
+            ])
+            .then(purchase => {
+                var purchaseQty = purchase.quantity;
+                var product_sales;
+                var name = purchase.product.split(`;`);
+                connection.query(
+                    `SELECT * FROM products WHERE ?`, [{
+                        product_name: name[0]
+                    }], (err, res) => {
+                        if (err) throw err;
+                        // Index 0 is product name, index 1 is product price
+                        var quanity = res[0].stock_quantity;
+                        product_sales = res[0].product_sales;
+
+                        var total = Number(quanity) - Number(purchaseQty);
+
+                        var Price = name[1].split(`$`);
+                        var purchaseAmount = Number(Price[1]);
+                        var productSale = Number(
+                            product_sales + purchaseAmount * purchaseQty
+                        );
+                        if (total <= 0) {
+                            console.log(`Sorry not enough inventory`);
+                            getProducts(name[0]);
+                        } else {
+                            connection.query(
+                                `Update products SET ? Where ?`, [{
+                                        stock_quantity: total,
+                                        product_sales: productSale
+                                    },
+                                    {
+                                        product_name: name[0]
+                                    }
+                                ], (err, res) => {
+                                    if (err) throw err;
+                                }
+                            );
+                            console.log(`Thank you, Your total is $${purchaseAmount * purchaseQty}`);
+                            inquirer
+                                .prompt([{
+                                    name: `shopAgian`,
+                                    message: `Would you like to make another purchase?`,
+                                    type: `confirm`
+                                }])
+                                .then(yes => {
+                                    if (yes.shopAgian) {
+                                        productList = [];
+                                        deptPrompt();
+                                    } else {
+                                        console.log(`Thank you for your business, come again soon!`);
+                                        connection.end();
+                                    }
+                                });
+                        }
                     }
-                });
-        });
+                );
+            });
     });
 }
 
-// function manager() {
-//     var query = "SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1";
-//     connection.query(query, function (err, res) {
-//         for (var i = 0; i < res.length; i++) {
-//             console.log(res[i].artist);
-//         }
-//         userPrompt();
-//     });
-// }
-
-// function supervisor() {
-//     // table is an Array, so you can `push`, `unshift`, `splice` and friends
-//     table.push(
-//         ['First value', 'Second value'], ['First value', 'Second value']
-//     );
-//     console.log(table.toString());
+// module.exports = {
+//     deptPrompt: deptPrompt,
+//     getProducts: getProducts
 // }
