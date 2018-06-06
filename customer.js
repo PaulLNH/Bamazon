@@ -1,5 +1,6 @@
 const mysql = require(`mysql`);
 const inquirer = require(`inquirer`);
+
 const connection = mysql.createConnection({
     host: `localhost`,
     port: 3306,
@@ -9,12 +10,11 @@ const connection = mysql.createConnection({
 });
 connection.connect(err => {
     if (err) throw err;
-    deptPrompt();
+    customerPortal();
 });
 var productList = [];
-console.log(`Welcome Shopper!\n`);
 
-var deptPrompt = () => {
+var customerPortal = () => {
     inquirer
         .prompt([{
             name: `department`,
@@ -104,7 +104,7 @@ var getProducts = deptName => {
                         var productSale = Number(
                             product_sales + purchaseAmount * purchaseQty
                         );
-                        if (total <= 0) {
+                        if (total < 0) {
                             console.log(`Sorry not enough inventory`);
                             getProducts(name[0]);
                         } else {
@@ -130,7 +130,7 @@ var getProducts = deptName => {
                                 .then(yes => {
                                     if (yes.shopAgian) {
                                         productList = [];
-                                        deptPrompt();
+                                        customerPortal();
                                     } else {
                                         console.log(`Thank you for your business, come again soon!`);
                                         connection.end();
@@ -142,8 +142,3 @@ var getProducts = deptName => {
             });
     });
 }
-
-// module.exports = {
-//     deptPrompt: deptPrompt,
-//     getProducts: getProducts
-// }

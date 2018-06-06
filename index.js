@@ -1,6 +1,5 @@
-const mysql = require(`mysql`);
 const inquirer = require(`inquirer`);
-// const customerPortal = require(`./customer`);
+// const customer = require(`./customer`);
 
 var userPrompt = () => {
     inquirer.prompt({
@@ -11,24 +10,25 @@ var userPrompt = () => {
                 `Customer`,
                 `Manager`,
                 `Supervisor`,
+                new inquirer.Separator(),
                 `Exit Application`
             ]
         })
         .then(user => {
             switch (user.selectUser) {
                 case `Customer`:
-                    console.log(`You've selected Customer`);
+                    console.log(`Welcome Shopper!`);
                     customerPortal();
                     break;
                 case `Manager`:
-                    console.log(`You've selected Manager`);
-                    multiSearch();
+                    console.log(`You are now logged in as a Manager`);
+                    managerPortal();
                     break;
                 case `Supervisor`:
-                    console.log(`You've selected Supervisor`);
-                    rangeSearch();
+                    console.log(`You are now logged in as a Supervisor`);
+                    supervisorPortal();
                     break;
-                case `Exit`:
+                case `Exit Application`:
                     console.log(`Thank you for visiting Bamazon!`);
                     connection.end();
                     break;
@@ -39,3 +39,5 @@ var userPrompt = () => {
             }
         });
 }
+
+userPrompt();
