@@ -1,5 +1,4 @@
 const inquirer = require(`inquirer`);
-// const customer = require(`./customer`);
 
 var userPrompt = () => {
     inquirer.prompt({
@@ -39,5 +38,4 @@ var userPrompt = () => {
             }
         });
 }
-
 userPrompt();

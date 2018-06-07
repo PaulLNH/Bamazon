@@ -93,7 +93,6 @@ var getProducts = deptName => {
                         product_name: name[0]
                     }], (err, res) => {
                         if (err) throw err;
-                        // Index 0 is product name, index 1 is product price
                         var quanity = res[0].stock_quantity;
                         product_sales = res[0].product_sales;
 
