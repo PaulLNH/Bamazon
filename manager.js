@@ -166,7 +166,8 @@ var addToInventory = () => {
                             console.log(`${howMany} ${product}'s have been added. The total quantity is now: ${total}`);
                             products = [];
                             LowProductQuantity = [];
-                            setTimeout(returnToTheMainMenu, 1000);
+                            // setTimeout(returnToMainMenu, 1000);
+                            returnToMainMenu();
                         });
                     }
                 );
@@ -187,10 +188,12 @@ var lowInventory = () => {
         }
         if (tableLI.length !== 0) {
             console.log(tableLI.toString());
-            setTimeout(returnToTheMainMenu, 1000);
+            // setTimeout(returnToMainMenu, 1000);
+            returnToMainMenu();
         } else {
             console.log(`There are currently no items with low quantity.`);
-            setTimeout(returnToTheMainMenu, 1000);
+            // setTimeout(returnToMainMenu, 1000);
+            returnToMainMenu();
         }
     });
 }
@@ -255,7 +258,8 @@ var productInfo = (item) => {
                         }], (err, res) => {
                             if (err) throw err;
                             console.log(`The price of ${item} has been changed from $${price} to $${answer.changeTo}.`);
-                            setTimeout(returnToTheMainMenu, 1000);
+                            // setTimeout(returnToMainMenu, 1000);
+                            returnToMainMenu();
                         });
                     } else if (`Inventory: ${quantity}`) {
                         connection.query(`Update products SET ? Where ?`, [{
@@ -265,7 +269,8 @@ var productInfo = (item) => {
                         }], (err, res) => {
                             if (err) throw err;
                             console.log(`The inventory amount of ${item} has been changed from ${quantity} to ${answer.changeTo}.`);
-                            setTimeout(returnToTheMainMenu, 1000);
+                            // setTimeout(returnToMainMenu, 1000);
+                            returnToMainMenu();
                         });
                     }
                 });
@@ -273,7 +278,7 @@ var productInfo = (item) => {
     );
 }
 
-var returnToTheMainMenu = () => {
+var returnToMainMenu = () => {
     inquirer
         .prompt([{
             name: `MainMenu`,

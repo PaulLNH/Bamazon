@@ -1,173 +1,166 @@
-# Bamazon
+# Bamazon - Node.js and SQL CLI Inventory Management System
 
-Amazon-like storefront with MySQL database.
+Bamazon is a command line interface designed for small businesses to act as a point of sale terminal and manage inventory levels.
 
-# Node.js & MySQL
+## Getting Started
 
-## Overview
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. Note that this project is a demonstration of Node.js and SQL and is not intended for live deployment at this time.
 
-In this activity, you'll be creating an Amazon-like storefront with the MySQL skills you learned this week. The app will take in orders from customers and deplete stock from the store's inventory. As a bonus task, you can program your app to track product sales across your store's departments and then provide a summary of the highest-grossing departments in the store.
+### Prerequisites
 
-Make sure you save and require the MySQL and Inquirer npm packages in your homework files--your app will need them for data input and storage.
+Bamazon uses several dependencies that need to be installed in order to operate.
 
-## Submission Guide
+[npm inquirer](https://www.npmjs.com/package/inquirer) - Used to allow the user to interact via command line
+[npm mysql](https://www.npmjs.com/package/mysql) - Allows node.js to interact with MySQL
+[npm cli-table](https://www.npmjs.com/package/cli-table) - Creates a unicode-aided table in the command line
 
-Make sure you use the normal GitHub. Because this is a CLI App, there will be no need to deploy it to Heroku. This time, though, you need to include screenshots, a gif, and/or a video showing us that you got the app working with no bugs. You can include these screenshots or a link to a video in a `README.md` file.
+### Installing
 
-- Include screenshots (or a video) of typical user flows through your application (for the customer and if relevant the manager/supervisor). This includes views of the prompts and the responses after their selection (for the different selection options).
+Clone the repo by openeing your Git Bash terminal and typing in (a directory you wish to house this application): `git clone https://github.com/PaulLNH/Bamazon.git`
 
-- Include any other screenshots you deem necessary to help someone who has never been introduced to your application understand the purpose and function of it. This is how you will communicate to potential employers/other developers in the future what you built and why, and to show how it works.
+Initialize a SQL database by entering the following into MySQL workbench with an active SQL Command Line Interface running locally (or equiviliant):
 
-- Because screenshots (and well-written READMEs) are extremely important in the context of GitHub, this will be part of the grading.
+```
+DROP DATABASE IF EXISTS bamazon;
+CREATE DATABASE bamazon;
 
-If you haven't written a markdown file yet, [click here for a rundown](https://guides.github.com/features/mastering-markdown/), or just take a look at the raw file of these instructions.
+USE bamazon;
 
-### Submission on BCS
+CREATE TABLE products (
+id integer(11) NOT NULL AUTO_INCREMENT,
+product_name varchar(30) NOT NULL,
+department_name varchar(30) NOT NULL,
+price decimal(10,2) NOT NULL,
+stock_quantity INTEGER(11) NOT NULL,
+product_sales decimal(10,2),
+PRIMARY KEY (`id`)
+);
 
-- Please submit both the deployed Github.io link to your homework AND the link to the Github Repository!
+CREATE TABLE department (
+department_id integer(11) NOT NULL AUTO_INCREMENT,
+department_name varchar(30) NOT NULL,
+over_head_costs decimal(10,2) NOT NULL,
+primary key (department_id)
+);
 
-## Instructions
+-- Insert dummy department
+Insert Into department (department_name, over_head_costs)
+Values ("Electronics", 60000), ("Books", 10000), ("Movies & Video", 20000), ("Home & Garden", 30000), ("Apparel", 15000);
 
-### Challenge #1: Customer View (Minimum Requirement)
+-- Insert dummy products
+INSERT INTO products (product_name, department_name, price, stock_quantity)
+Values ("PS4", "Electronics", 299, 100), ("Harry Potter Collections", "books", 75, 50), ("The Office The Complete Series ", "Movies & Video", 45, 75),
+("Sofa", "Home & Garden", 399, 10), ("Bamazon Firestick", "Electronics", 90, 100), ("Laptop", "Electronics", 800, 50),
+("Shirt", "Apparel", 45, 100), ("Javascript for Dummies", "books", 20, 10), ("Primer", "Movies & Video", 20, 10), ("Fridge", "Home & Garden", 600, 10);
 
-1.  Create a MySQL Database called `bamazon`.
+SELECT \* FROM products;
+```
 
-2.  Then create a Table inside of that database called `products`.
+After the repo has been cloned locally and your MySQL database has been initilized, enter the folder with the following command in terminal: `cd bamazon`
 
-3.  The products table should have each of the following columns:
+Install the dependencies with the `npm i` command, this works because the package.json is setup with the dependencies needed.
 
-    - item_id (unique id for each product)
+To run the point of sale or "Customer" portal, type in `node customer.js`
 
-    - product_name (Name of product)
+To run the inventory management system or "Manager" portal, type in `node manager.js`
 
-    - department_name
+To run the department overview system or "Supervisor" portal, type in `node supervisor.js`
 
-    - price (cost to customer)
+**\* ADD A GIF OF THE PROGRAM WORKING IN ALL 3 INSTINCES **
 
-    - stock_quantity (how much of the product is available in stores)
+## Running the tests
 
-4.  Populate this database with around 10 different products. (i.e. Insert "mock" data rows into this database and table).
+Run an initial test on the files by entering the following `node customer.js` the select "I changed my mind, I don't wish to purchase anything." to exit. Check the manager portal by entering `node manager.js` into the command line then select "Exit Manager Portal." to exit. Lastly, type `node supervisor.js` into the command line and select "Exit Supervisor Portal." to return to the command prompt.
 
-5.  Then create a Node application called `bamazonCustomer.js`. Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
+Assuming you received no errors on any of these files you've concluded the installation test of the Bamazon app.
 
-6.  The app should then prompt users with two messages.
+### Break down into end to end tests
 
-    - The first should ask them the ID of the product they would like to buy.
-    - The second message should ask how many units of the product they would like to buy.
+_Running an end to end test on customer.js:_
 
-7.  Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
+- Enter `node customer.js` into the command line
+- Select the `Books` category
+- Select `Javascript for Dummies`
+- Type in `100` for "How many would you like to purchase?" and you should receive the "Sorry not enough inventory" error.
+- Select `Javascript for Dummies` again
+- This time type in `2` for "How many would you like to purchase?", you should see "Thank you, Your total is $40" then a new prompt "Would you like to make another purchase? (Y/n)"
+- Type `y` then hit `Enter`, it should bring you back to the main POS menu
+- Select `Apparel` and hit `Enter` to select "Shirt; Price: $45", you should receive another successful purchase prompt.
+- Type `n` and hit `Enter` and it should promt you with "Thank you for your business, come agian soon!" and it should exit the application and put you into the command line.
 
-    - If not, the app should log a phrase like `Insufficient quantity!`, and then prevent the order from going through.
+_Running an end to end test on manager.js:_
 
-8.  However, if your store _does_ have enough of the product, you should fulfill the customer's order.
-    - This means updating the SQL database to reflect the remaining quantity.
-    - Once the update goes through, show the customer the total cost of their purchase.
+- Enter `node manager.js` into the command line
 
----
+_Testing the View Products Module:_
 
-- If this activity took you between 8-10 hours, then you've put enough time into this assignment. Feel free to stop here -- unless you want to take on the next challenge.
+- Select the `View Products for Sale` menu item and hit `Enter`
+- Select `PS4` and hit `Enter`
+- Select `Price:` to test the modification of price
+- Type in `275` and hit `Enter`, you should receive a "The price of PS4 has been changed from \$299 to \$275." prompt followed by a "Would you like to return to the main menu? (Y/n)".
+- Type `y` and hit `Enter`
+- Select the `View Products for Sale` menu item and hit `Enter`
+- Select `PS4` and hit `Enter`
+- Select `Inventory:` to test the modification of the stock quantity and hit `Enter`
+- Type in `1` and hit `Enter` you will be promted with "Would you like to return to the main menu? (Y/n)".
+- Hit `Enter` (this should default to `y`)
 
----
+_Testing the Print Low Inventory Report Module:_
 
-### Challenge #2: Manager View (Next Level)
+- Select the `Print Low Inventory Report` menu item and hit `Enter`, this should display a table of all items with an inventory level of 5 or less.
+- Type `y` and hit `Enter`
 
-- Create a new Node application called `bamazonManager.js`. Running this application will:
+_Testing the Add Inventory Module:_
 
-  - List a set of menu options:
+- Select the `Add Inventory` menu item and hit `Enter`
+- Select `PS4` and hit `Enter`
+- Type in `5` and hit `Enter` you should see the message "5 PS4's have been added. The total quantity is now: 6"
+- Press `Enter` to return to the main menu
 
-    - View Products for Sale
+_Testing the Add New Product Module:_
 
-    - View Low Inventory
+- Select the `Add New Product` menu item and hit `Enter`
+- When promted "What would you like to add?" type `Solo Cups` and hit `Enter`
+- When promted "How many would you like to add?" type in `3` and hit `Enter`
+- When promted "What is the price?" type in `2.99` and hit `Enter`
+- When prompted "What is the Department you would like to add to? (Use arrow keys)" select `Home & Garden` from the list of items and press `Enter`, you should receive the following confirmation message: "You have added 3 Solo Cups's to your Home & Garden department"
+- Select `Main Menu` and press `Enter` to return to the main menu
 
-    - Add to Inventory
+_Testing the Exit feature:_
 
-    - Add New Product
+- Go through each step of the end to end testing again, this time type `n` when promted "Would you like to return to the main menu?" or `Exit Manager Portal` while in the main menu to exit the program. This should result in a clean break back into the command line and close the SQL connection.
 
-  - If a manager selects `View Products for Sale`, the app should list every available item: the item IDs, names, prices, and quantities.
+## Deployment
 
-  - If a manager selects `View Low Inventory`, then it should list all items with an inventory count lower than five.
+Note that this project is a demonstration of Node.js and SQL and is not intended for live deployment at this time.
 
-  - If a manager selects `Add to Inventory`, your app should display a prompt that will let the manager "add more" of any item currently in the store.
+## Built With
 
-  - If a manager selects `Add New Product`, it should allow the manager to add a completely new product to the store.
+- [Node.js](https://nodejs.org/en/) - An asynchronous event driven JavaScript runtime enviornment designed to build scalable network applications.
+- [npm inquirer](https://www.npmjs.com/package/inquirer) - Used to allow the user to interact via command line
+- [npm mysql](https://www.npmjs.com/package/mysql) - Allows node.js to interact with MySQL
+- [npm cli-table](https://www.npmjs.com/package/cli-table) - Creates a unicode-aided table in the command line
 
----
+## Contributing
 
-- If you finished Challenge #2 and put in all the hours you were willing to spend on this activity, then rest easy! Otherwise continue to the next and final challenge.
+Please read [CONTRIBUTING.md](https://gist.github.com/PaulLNH/f66c363cf5e6014e0a9aa1641a6a0f02) for details on our code of conduct, and the process for submitting pull requests to us.
 
----
+## Versioning
 
-### Challenge #3: Supervisor View (Final Level)
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/PaulLNH/Bamazon/tags).
 
-1.  Create a new MySQL table called `departments`. Your table should include the following columns:
+## Authors
 
-    - department_id
+- **Paul Laird** - _Initial work_ - [PaulLNH](https://github.com/PaulLNH)
 
-    - department_name
+See also the list of [contributors](https://github.com/PaulLNH/Bamazon/graphs/contributors) who participated in this project.
 
-    - over_head_costs (A dummy number you set for each department)
+## License
 
-2.  Modify the products table so that there's a product_sales column and modify the `bamazonCustomer.js` app so that this value is updated with each individual products total revenue from each sale.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-3.  Modify your `bamazonCustomer.js` app so that when a customer purchases anything from the store, the price of the product multiplied by the quantity purchased is added to the product's product_sales column.
+## Acknowledgments
 
-    - Make sure your app still updates the inventory listed in the `products` column.
-
-4.  Create another Node app called `bamazonSupervisor.js`. Running this application will list a set of menu options:
-
-    - View Product Sales by Department
-
-    - Create New Department
-
-5.  When a supervisor selects `View Product Sales by Department`, the app should display a summarized table in their terminal/bash window. Use the table below as a guide.
-
-| department_id | department_name | over_head_costs | product_sales | total_profit |
-| ------------- | --------------- | --------------- | ------------- | ------------ |
-| 01            | Electronics     | 10000           | 20000         | 10000        |
-| 02            | Clothing        | 60000           | 100000        | 40000        |
-
-6.  The `total_profit` column should be calculated on the fly using the difference between `over_head_costs` and `product_sales`. `total_profit` should not be stored in any database. You should use a custom alias.
-
-7.  If you can't get the table to display properly after a few hours, then feel free to go back and just add `total_profit` to the `departments` table.
-
-    - Hint: You may need to look into aliases in MySQL.
-
-    - Hint: You may need to look into GROUP BYs.
-
-    - Hint: You may need to look into JOINS.
-
-    - **HINT**: There may be an NPM package that can log the table to the console. What's is it? Good question :)
-
-### Reminder: Submission on BCS
-
-- Please submit both the deployed Github.io link to your homework AND the link to the Github Repository!
-
----
-
-### Minimum Requirements
-
-Attempt to complete homework assignment as described in instructions. If unable to complete certain portions, please pseudocode these portions to describe what remains to be completed. Adding a README.md as well as adding this homework to your portfolio are required as well and more information can be found below.
-
----
-
-### Create a README.md
-
-Add a `README.md` to your repository describing the project. Here are some resources for creating your `README.md`. Here are some resources to help you along the way:
-
-- [About READMEs](https://help.github.com/articles/about-readmes/)
-
-- [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
-
----
-
-### Add To Your Portfolio
-
-After completing the homework please add the piece to your portfolio. Make sure to add a link to your updated portfolio in the comments section of your homework so the TAs can easily ensure you completed this step when they are grading the assignment. To receive an 'A' on any assignment, you must link to it from your portfolio.
-
----
-
-### One More Thing
-
-If you have any questions about this project or the material we have covered, please post them in the community channels in slack so that your fellow developers can help you! If you're still having trouble, you can come to office hours for assistance from your instructor and TAs.
-
-**Good Luck!**
+- Hat tip to anyone who has suggested ideas or theories towards this project
+- Inspiration from my good friend [Ryan Holt](https://github.com/draconusdesigns)
+- and of course my wife and kids
