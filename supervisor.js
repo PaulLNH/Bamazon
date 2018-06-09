@@ -48,10 +48,10 @@ var superVisor = () => {
 };
 
 var viewProducts = () => {
-    var query = `SELECT d.department_id, d.department_name, d.over_head_costs, SUM(p.product_sales) as ProductSales
-                , SUM(p.product_sales) - d.over_head_costs AS total_profit 
-                FROM products as p 
-                INNER JOIN department as d ON p.department_name=d.department_name 
+    var query = `SELECT d.department_id, d.department_name, d.over_head_costs, COALESCE( SUM(p.product_sales), 0) as ProductSales
+                , COALESCE( SUM(p.product_sales), 0) - d.over_head_costs AS total_profit 
+                FROM department as d 
+                LEFT JOIN products as p ON p.department_name=d.department_name 
                 group by d.department_name 
                 order by d.department_id`;
     connection.query(query, (err, res) => {
