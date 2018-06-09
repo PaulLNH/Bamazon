@@ -10,9 +10,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 Bamazon uses several dependencies that need to be installed in order to operate.
 
-[npm inquirer](https://www.npmjs.com/package/inquirer) - Used to allow the user to interact via command line
-[npm mysql](https://www.npmjs.com/package/mysql) - Allows node.js to interact with MySQL
-[npm cli-table](https://www.npmjs.com/package/cli-table) - Creates a unicode-aided table in the command line
+- [npm inquirer](https://www.npmjs.com/package/inquirer) - Used to allow the user to interact via command line
+- [npm mysql](https://www.npmjs.com/package/mysql) - Allows node.js to interact with MySQL
+- [npm cli-table](https://www.npmjs.com/package/cli-table) - Creates a unicode-aided table in the command line
 
 ### Installing
 
